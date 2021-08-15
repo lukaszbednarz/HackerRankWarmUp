@@ -5,151 +5,141 @@ import os
 import random
 import re
 import sys
+from bisect import bisect
 from collections import deque
-from collections import Counter
 
-
-# Complete the 'swapNodes' function below.
 #
-# The function is expected to return a 2D_INTEGER_ARRAY.
+# Complete the 'crosswordPuzzle' function below.
+#
+# The function is expected to return a STRING_ARRAY.
 # The function accepts following parameters:
-#  1. 2D_INTEGER_ARRAY indexes
-#  2. INTEGER_ARRAY queries
+#  1. STRING_ARRAY crossword
+#  2. STRING words
+
+def matchH(s, word, k = 0):
+
+    if s[k - 1] != "+":
+        k -= 1
+
+    l = 10
+    max_i = (k//10 + 1) * 10
+
+    i = k
+    for a in word:
+        if i >= max_i or (a != s[i] and s[i] != "-"):
+            return False, None, None
+        else:
+            s[i] = a
+            i += 1
+
+    if i < max_i and s[i] != "+":
+        return False, None, None
+
+    i = nextIndex(s, i)
+    return True, s, i
 
 
-class Node:
+def matchV(s, word, k = 0):
+    max_i = len(s)
 
-    def __init__(self, value, depth=None, left=None, right=None):
-        self.value = value
-        self.trav = None
-        self.left = left
-        self.right = right
-        self.depth = depth
+    if k >= 10 and s[k - 10] != "+":
+        k -= 10
 
-    def swapChildren(self):
-        tmp = self.left
-        self.left = self.right
-        self.right = tmp
+    i = k
+    for a in word:
+        if i >= max_i or (a != s[i] and s[i] != "-"):
+            return False, None, None
+        else:
+            s[i] = a
+            i += 10
+    if i < max_i and s[i] != "+":
+        return False, None, None
 
+    i = nextIndex(s, k)
+    return True, s, i
 
-    def swapNodes(self, query, max_depth):
-
-        levels = []
-        tmp = query
-        while tmp <= max_depth:
-            levels.append(tmp)
-            tmp += query
-
-        q = deque()
-        s = deque()
-        q.append(self)
-        s.extend(levels)
-        d = 0
-
-        while q:
-            n = q.popleft()
-            sd = n.depth
-            if s and d < sd:
-                d = s.popleft()
-            if d == sd:
-                n.swapChildren()
-
-            if s or d > sd:
-                if n.left is not None:
-                    q.append(n.left)
-                if n.right is not None:
-                    q.append(n.right)
-
-        print()
-
-
-    def traverse(self):
-        vals = []
-
-        if self.left is not None:
-            vals.extend(self.left.traverse())
-        vals.append(self.value)
-        if self.right is not None:
-            vals.extend(self.right.traverse())
-
-        return vals
-
-
-
-
-
-def generateTree(indexes):
-
-    root = Node(1, 1)
-
-    ii = iter(indexes)
-    q = deque()
-    q.append(root)
-
-    max_depth = 0
-    while q and ii:
-        lr = next(ii)
-        n = q.popleft()
-        depth = n.depth
-
-        if depth > max_depth:
-            max_depth = depth
-
-        depth += 1
-
-        left = lr[0]
-        if left != -1:
-            n.left = Node(left, depth)
-            q.append(n.left)
-
-        right = lr[1]
-        if right != -1:
-            n.right = Node(right, depth)
-            q.append(n.right)
-
-    return root, max_depth
-
-
-
-
-
-def swapNodes(indexes, queries):
+def crosswordPuzzle(crossword, words):
     # Write your code here
 
-    root, max_depth = generateTree(indexes)
+    s = [item for elem in crossword for item in list(elem)]
+    l = len(s)
+    q = deque()
+    q.extend(words)
+    i = nextIndex(s, 0)
 
-    print(root.traverse())
-    ans = []
+    stack = []
 
-    for q in queries:
-        root.swapNodes(q, max_depth)
-        ans.append(root.traverse())
+    q_size = len(q)
+    max_iter = q_size * (q_size + 1) // 2
+    count = 0
+
+    while q and i < l:
+        q_size = len(q)
+        max_iter = q_size * (q_size + 1) // 2
+
+        w = q.popleft()
+        matchh, tmp, next_i = matchH(s.copy(), w, i)
+        if matchh:
+            stack.append((s, i, w))
+            i = next_i
+            s = tmp
+            count = 0
+            continue
+        matchv, tmp, next_i = matchV(s.copy(), w, i)
+        if matchv:
+            stack.append((s, i, w))
+            i = next_i
+            s = tmp
+            count = 0
+            continue
+
+        q.append(w)
+
+        if count > max_iter:
+            s, i, w = stack.pop()
+            q.append(w)
+
+            count = 0
+        else:
+            count += 1
+
+
+    ans = listToGrid(stack[-1][0])
 
     return ans
 
+def nextIndex(s, i, c = "-"):
+    l = len(s)
+    while i < l and s[i] != c:
+        i += 1
+    return i
+
+def listToGrid(s):
+    ans = []
+    for i in range(0, 100, 10):
+        ans.append("".join(s[i:i + 10]))
+    return(ans)
+
+def printGrid(s):
+
+    for r in listToGrid(s):
+        print(r)
 
 
 
 
 if __name__ == '__main__':
-    fptr = open('./tests/SwapNodes0.txt', 'r')
+    fptr = open('./tests/CrosswordPuzzle6.txt', 'r')
 
-    n = int(fptr.readline().strip())
+    crossword = []
 
-    indexes = []
+    for _ in range(10):
+        crossword_item = fptr.readline().strip()
+        crossword.append(crossword_item)
 
-    for _ in range(n):
-        indexes.append(list(map(int, fptr.readline().rstrip().split())))
+    words = fptr.readline().split(";")
 
-    queries_count = int(fptr.readline().strip())
-
-    queries = []
-
-    for _ in range(queries_count):
-        queries_item = int(fptr.readline().strip())
-        queries.append(queries_item)
-
-    result = swapNodes(indexes, queries)
+    result = crosswordPuzzle(crossword, words)
 
     for r in result:
         print(r)
