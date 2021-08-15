@@ -104,7 +104,7 @@ def crosswordPuzzle(crossword, words):
             count += 1
 
 
-    ans = listToGrid(stack[-1][0])
+    ans = listToGrid(s)
 
     return ans
 
@@ -129,7 +129,7 @@ def printGrid(s):
 
 
 if __name__ == '__main__':
-    fptr = open('./tests/CrosswordPuzzle6.txt', 'r')
+    fptr = open('./tests/CrosswordPuzzle0.txt', 'r')
 
     crossword = []
 
