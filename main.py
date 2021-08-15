@@ -5,40 +5,49 @@ import os
 import random
 import re
 import sys
-
+from collections import Counter
 
 # Complete the triplets function below.
 def triplets(a, b, c):
-    i = j = k = 0
+    ai = bi = ci = 0
+
+    a = list(sorted(set(a)))
+    b = list(sorted(set(b)))
+    c = list(sorted(set(c)))
     la = len(a)
     lb = len(b)
     lc = len(c)
 
-    a.sort()
-    b.sort()
-    c.sort()
     ans = 0
 
-    while i < la and j < lb and k < lc:
-        p = a[i]
-        q = b[j]
-        r = c[k]
+    # p = a[i]
+    # q = b[j]
+    # r = c[k]
 
-        if p <= q:
-            i += 1
-        elif r <= q:
-            k += 1
-        else:
-            j += 1
-            ans += i * k
+    while bi < lb:
+        while ai < la and a[ai] <= b[bi]:
+            ai += 1
+        while ci < lc and c[ci] <= b[bi]:
+            ci += 1
+
+        ans += ai * ci
+
+        bi += 1
+
+    return ans
+
+
+
+
+
 
     return ans
 
 
 if __name__ == '__main__':
-    fptr = open(os.environ['OUTPUT_PATH'], 'w')
+    fptr = open('./tests/TripleSum0.txt', 'r')
 
-    lenaLenbLenc = input().split()
+    lenaLenbLenc = fptr.readline().split()
 
     lena = int(lenaLenbLenc[0])
 
@@ -46,14 +55,12 @@ if __name__ == '__main__':
 
     lenc = int(lenaLenbLenc[2])
 
-    arra = list(map(int, input().rstrip().split()))
+    arra = list(map(int, fptr.readline().rstrip().split()))
 
-    arrb = list(map(int, input().rstrip().split()))
+    arrb = list(map(int, fptr.readline().rstrip().split()))
 
-    arrc = list(map(int, input().rstrip().split()))
+    arrc = list(map(int, fptr.readline().rstrip().split()))
 
     ans = triplets(arra, arrb, arrc)
 
-    fptr.write(str(ans) + '\n')
-
-    fptr.close()
+    print(ans)
