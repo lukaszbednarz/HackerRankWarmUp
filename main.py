@@ -5,59 +5,55 @@ import os
 import random
 import re
 import sys
-from bisect import bisect_right
 
 
-#
-# Complete the 'pairs' function below.
-#
-# The function is expected to return an INTEGER.
-# The function accepts following parameters:
-#  1. INTEGER k
-#  2. INTEGER_ARRAY arr
-#
+# Complete the triplets function below.
+def triplets(a, b, c):
+    i = j = k = 0
+    la = len(a)
+    lb = len(b)
+    lc = len(c)
 
-def pairs(k, arr):
-    # Write your code here
-    arr.sort()
-
-    l = len(arr)
-    i = 0
-    n = 1
-
+    a.sort()
+    b.sort()
+    c.sort()
     ans = 0
 
-    while i < l - 1:
-        a = arr[i]
-        if arr[i + 1] == a:
-            i += 1
-            n += 1
+    while i < la and j < lb and k < lc:
+        p = a[i]
+        q = b[j]
+        r = c[k]
 
-        if k == 0:
-            ans += n * (n + 1) // 2
+        if p <= q:
+            i += 1
+        elif r <= q:
+            k += 1
         else:
-            j = i + 1
-            while j < l:
-                b = arr[j] - a
-                if b < k:
-                    j += 1
-                elif b == k:
-                    j += 1
-                    ans += n
-                else:
-                    break
-        i += 1
+            j += 1
+            ans += i * k
+
     return ans
 
 
 if __name__ == '__main__':
+    fptr = open(os.environ['OUTPUT_PATH'], 'w')
 
-    n = 5
+    lenaLenbLenc = input().split()
 
-    k = 2
+    lena = int(lenaLenbLenc[0])
 
-    arr = [1, 5, 3, 4, 2]
+    lenb = int(lenaLenbLenc[1])
 
-    result = pairs(k, arr)
+    lenc = int(lenaLenbLenc[2])
 
-    print(result)
+    arra = list(map(int, input().rstrip().split()))
+
+    arrb = list(map(int, input().rstrip().split()))
+
+    arrc = list(map(int, input().rstrip().split()))
+
+    ans = triplets(arra, arrb, arrc)
+
+    fptr.write(str(ans) + '\n')
+
+    fptr.close()
