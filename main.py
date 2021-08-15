@@ -38,9 +38,6 @@ def triplets(a, b, c):
 
 
 
-
-
-
     return ans
 
 
